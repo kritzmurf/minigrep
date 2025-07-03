@@ -1,18 +1,19 @@
-use std::{env, fs};
+use std::{env, process};
+
+use minigrep::{Config, run};
 
 fn main() {
     //get CLI args
     let args: Vec<String> = env::args().collect();
 
-    let query = &args[1];
-    let file_path = &args[2];
+    let config = Config::build(&args).unwrap_or_else(|error| {
+        println!("Problem parsing CLI args: {error}");
+        process::exit(1);
+    });
 
-    println!("Searching for: {}", query);
-    println!("In filepath: {}", file_path);
-
-    let contents = fs::read_to_string(file_path)
-        .expect("Expected to be able to read the file");
-
-    println!("file contents:\n{contents}");
-
+    if let Err(e) = run(config) {
+        println!("Application error: {}", e);
+        process::exit(1);
+    }
 }
+
